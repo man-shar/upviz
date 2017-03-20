@@ -1,0 +1,11 @@
+#tout_chart_container path{
+	stroke:black;
+	stroke-width:0.2;
+}
+
+.year_dropdown_container{
+	margin-bottom: 40px;
+}
+.hidden{
+	fill-opacity:0;
+}
