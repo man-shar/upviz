@@ -116,16 +116,16 @@ function newmaps(year){
 		{
 			d3.select("#tout_chart_container").remove();
 			svg = d3.select("body").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-			g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)");
-			g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)");
-			g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)");
-			g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)");
-			g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)");
+			g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)").style("fill","none");
+			g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)").style("fill","none");
+			g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)").style("fill","none");
+			g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)").style("fill","none");
+			g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)").style("fill","none");
 
 			g_turnout.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
-			.attr("d",path).style("fill","none");
+			.attr("d",path)
 
 			g_bjp.selectAll("path")
 			.data(geo_obj.features)
@@ -135,7 +135,7 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path).attr("d",path).style("fill","none");;
+			.attr("d", path).attr("d",path);
 
 			g_inc.selectAll("path")
 			.data(geo_obj.features)
@@ -148,7 +148,7 @@ function newmaps(year){
 				else 
 					return "third";
 			})
-			.attr("d", path).attr("d",path).style("fill","none");;
+			.attr("d", path).attr("d",path);
 
 			g_sp.selectAll("path")
 			.data(geo_obj.features)
@@ -158,7 +158,7 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path).attr("d",path).style("fill","none");;
+			.attr("d", path).attr("d",path);
 
 			g_bsp.selectAll("path")
 			.data(geo_obj.features)
@@ -168,7 +168,7 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path).attr("d",path).style("fill","none");;
+			.attr("d", path).attr("d",path);
 
 			document.getElementById("year_dropdown").dataset.firstRun="false";
 		}
@@ -306,11 +306,11 @@ function oldmaps(year){
 		.domain([10, 150000])
 		.range(['#9ecae1','#6baed6','#4292c6','#2171b5','#084594']);
 		var svg = d3.select("body").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-		var g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)");
-		var g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)");
-		var g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)");
-		var g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)");
-		var g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)");
+		var g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)").style("fill","none");
+		var g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)").style("fill","none");
+		var g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)").style("fill","none");
+		var g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)").style("fill","none");
+		var g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)").style("fill","none");
 
 
 		g_turnout.selectAll("path")
