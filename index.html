@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="viz.css">
 <body onload="newmaps('17')">
-	<div class="year_dropdown_container">
+	<div class="year_dropdown_container noselect">
 		<select id="year_dropdown" name="select" onchange="makeviz(this)" data-old-value="17" data-first-run="true" autocomplete="off">
 			<option value="17" >2017</option> 
 			<option value="12">2012</option>
@@ -10,7 +10,7 @@
 	</div>
 	<div class="toviz">
 	</div>
-	<div class="position_toggle_container">
+	<div class="position_toggle_container noselect">
 		<p>
 			<label>
 				<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
