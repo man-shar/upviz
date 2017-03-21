@@ -3,6 +3,9 @@
 	stroke-width:0.2;
 }
 
+.toviz{
+  text-align: center;
+}
 .year_dropdown_container{
 	margin-bottom: 40px;
 }
@@ -18,4 +21,21 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+
+.position_toggle_container{
+  width: 350px;
+  display: inline-block;
+}
+.year_dropdown_container{
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 30px;
+}
+.year_dropdown_container > div{
+  display: inline-block;
+}
+
+.options_container{
+  margin-bottom: 30px;
 }

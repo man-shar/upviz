@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="viz.css">
 <body onload="newmaps('17')">
-	<div class="year_dropdown_container noselect">
-		<select id="year_dropdown" name="select" onchange="makeviz(this)" data-old-value="17" data-first-run="true" autocomplete="off">
-			<option value="17" >2017</option> 
-			<option value="12">2012</option>
-			<option value="07">2007</option>
-		</select>
+	<div class="options_container noselect">
+		<div class="year_dropdown_container">
+			<select id="year_dropdown" name="select" onchange="makeviz(this)" data-old-value="17" data-first-run="true" autocomplete="off">
+				<option value="17" >2017</option> 
+				<option value="12">2012</option>
+				<option value="07">2007</option>
+			</select>
+		</div>
+		<div class="position_toggle_container noselect">
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
+					Constituencies where the party won
+				</label>
+			</div>
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
+					Constituencies where the party was the runner up
+				</label>
+			</div>
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
+					Constituencies where the party was 3rd and Below
+				</label>
+			</div>
+		</div>
 	</div>
 	<div class="toviz">
 	</div>
-	<div class="position_toggle_container noselect">
-		<p>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
-				Constituencies where the party won
-			</label>
-		</p>
-		<p>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
-				Constituencies where the party was the runner up
-			</label>
-		</p>
-		<p>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
-				Constituencies where the party was 3rd and Below
-			</label>
-		</p>
-	</div>
+	
 </body>
 
 
@@ -69,9 +72,14 @@ function newmaps(year){
 
 		var geo_obj=topojson.feature(up,up.objects.up);
 
-		var projection=d3.geoMercator()
+		var projection_small=d3.geoMercator()
 		.fitSize([230,230],geo_obj);
-		var path = d3.geoPath().projection(projection);
+
+		var projection_big=d3.geoMercator()
+		.fitSize([480,480],geo_obj);
+
+		var path_small = d3.geoPath().projection(projection_small);
+		var path_big=d3.geoPath().projection(projection_big);
 
 		var width=1250;
 		var height=600;
@@ -84,27 +92,27 @@ function newmaps(year){
 
 		var loss_scale=d3.scaleLinear()
 		.domain([-230000,-88000])
-		.range(["#333","#aaa"]);
+		.range(["#aaa","#700019"]);
 
 		var tout_scale= d3.scaleQuantize()
 		.domain([30,100])
 		.range(['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d']);
 
 		var bjp_col_scale= d3.scaleLinear()
-		.domain([0,150000])
-		.range(['#ffffff',party_colors["BJP"]]);
+		.domain([0,151000])
+		.range(['#d9ef8b',"#006837"]);
 
 		var inc_col_scale= d3.scaleLinear()
-		.domain([0,150000])
-		.range(['#ffffff',party_colors["INC"]]);
+		.domain([4000,89200])
+		.range(['#d9ef8b',"#006837"]);
 
 		var bsp_col_scale= d3.scaleLinear()
-		.domain([0,150000])
-		.range(['#ffffff',party_colors["BSP"]]);
+		.domain([0,27000])
+		.range(['#d9ef8b',"#006837"]);
 
 		var sp_col_scale= d3.scaleLinear()
-		.domain([0,150000])
-		.range(['#ffffff',party_colors["SP"]]);
+		.domain([0,53000])
+		.range(['#d9ef8b',"#006837"]);
 
 		var previous=document.getElementById("year_dropdown").dataset.oldValue;
 		document.getElementById("year_dropdown").dataset.oldValue=year;
@@ -114,18 +122,19 @@ function newmaps(year){
 
 		if(document.getElementById("year_dropdown").dataset.firstRun==="true" || previous==="07")
 		{
+			
 			d3.select("#tout_chart_container").remove();
-			svg = d3.select("body").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-			g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)");
-			g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)");
-			g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)");
-			g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)");
-			g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)");
+			svg = d3.select(".toviz").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
+			g_turnout=svg.append("g").attr("width",500).attr("height",600).attr("class","turnout toviz").attr("transform","translate(0,0)");
+			g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(600,0)");
+			g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(950,0)");
+			g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(600,300)");
+			g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(950,300)");
 
 			g_turnout.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
-			.attr("d",path);
+			.attr("d",path_big);
 
 			g_bjp.selectAll("path")
 			.data(geo_obj.features)
@@ -135,7 +144,7 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path);
+			.attr("d", path_small);
 
 			g_inc.selectAll("path")
 			.data(geo_obj.features)
@@ -148,7 +157,7 @@ function newmaps(year){
 				else 
 					return "third";
 			})
-			.attr("d", path);
+			.attr("d", path_small);
 
 			g_sp.selectAll("path")
 			.data(geo_obj.features)
@@ -158,7 +167,7 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path);
+			.attr("d", path_small);
 
 			g_bsp.selectAll("path")
 			.data(geo_obj.features)
@@ -168,13 +177,20 @@ function newmaps(year){
 				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
 				else return "third";
 			})
-			.attr("d", path);
+			.attr("d", path_small);
 
 			document.getElementById("year_dropdown").dataset.firstRun="false";
 		}
 
 		var t = d3.transition()
-		.duration(300)
+		.duration(250)
+		.ease(d3.easeLinear);
+
+		var g_turnout=d3.select(".turnout.toviz");
+		var g_bjp=d3.select(".bjp.toviz");
+		var g_inc=d3.select(".inc.toviz");
+		var g_sp=d3.select(".sp.toviz");
+		var g_bsp=d3.select(".bsp.toviz");
 		
 		g_turnout.selectAll("path")
 		.each(function(d,i){
@@ -235,15 +251,6 @@ function newmaps(year){
 		});
 		
 
-		var g_turnout=d3.select(".turnout.toviz");
-		var g_bjp=d3.select(".bjp.toviz");
-		var g_inc=d3.select(".inc.toviz");
-		var g_sp=d3.select(".sp.toviz");
-		var g_bsp=d3.select(".bsp.toviz");
-
-
-		
-
 		Array.from(document.getElementsByClassName("checkbox")).forEach(function(element){
 			if(element.getAttribute("checked")=="unchecked")
 			{
@@ -260,55 +267,85 @@ function oldmaps(year){
 
 	d3.json("uptopoold.json", function(error, up) {
 
+		var previous=document.getElementById("year_dropdown").dataset.oldValue;
+		document.getElementById("year_dropdown").dataset.oldValue=year;
+
+		d3.select("#tout_chart_container").remove();
+
+		var t = d3.transition()
+		.duration(250)
+		.ease(d3.easeLinear);
+
 		if (error) throw error;
 
 		var geo_obj=topojson.feature(up,up.objects.up);
 
-		var projection=d3.geoMercator()
+		var projection_small=d3.geoMercator()
 		.fitSize([230,230],geo_obj);
-		var path = d3.geoPath().projection(projection);
 
-		d3.select("#tout_chart_container").remove();
+		var projection_big=d3.geoMercator()
+		.fitSize([480,480],geo_obj);
+
+		var path_small = d3.geoPath().projection(projection_small);
+		var path_big=d3.geoPath().projection(projection_big);
+
 		var width=1250;
 		var height=600;
 
-		var t = d3.transition()
-		.duration(300)
-		;
+		var g_turnout=d3.select(".turnout.toviz");
+		var g_bjp=d3.select(".bjp.toviz");;
+		var g_inc=d3.select(".inc.toviz");;
+		var g_sp=d3.select(".sp.toviz");;
+		var g_bsp=d3.select(".bsp.toviz");;
 
+		var loss_scale=d3.scaleLinear()
+		.domain([-230000,-88000])
+		.range(["#aaa","#700019"]);
 
-		document.getElementById("year_dropdown").dataset.oldValue=year;
-
-		var tout_scale= d3.scaleLinear()
+		var tout_scale= d3.scaleQuantize()
 		.domain([30,100])
-		.range(['#b3cde3','#810f7c']);
+		.range(['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d']);
 
-		var col_scale= d3.scaleQuantize()
-		.domain([10, 150000])
-		.range(['#9ecae1','#6baed6','#4292c6','#2171b5','#084594']);
-		var svg = d3.select("body").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-		var g_turnout=svg.append("g").attr("width",250).attr("height",250).attr("class","turnout toviz").attr("transform","translate(0,0)");
-		var g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(250,0)");
-		var g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(500,0)");
-		var g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(750,0)");
-		var g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(1000,0)");
+		var bjp_col_scale= d3.scaleLinear()
+		.domain([0,151000])
+		.range(['#d9ef8b',"#006837"]);
+
+		var inc_col_scale= d3.scaleLinear()
+		.domain([4000,89200])
+		.range(['#d9ef8b',"#006837"]);
+
+		var bsp_col_scale= d3.scaleLinear()
+		.domain([0,27000])
+		.range(['#d9ef8b',"#006837"]);
+
+		var sp_col_scale= d3.scaleLinear()
+		.domain([0,53000])
+		.range(['#d9ef8b',"#006837"]);
+
+
+		d3.select("#tout_chart_container").remove();
+		var svg = d3.select(".toviz").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
+		g_turnout=svg.append("g").attr("width",500).attr("height",500).attr("class","turnout toviz").attr("transform","translate(0,0)");
+		g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(600,0)");
+		g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(950,0)");
+		g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(600,300)");
+		g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(950,300)");
 
 
 		g_turnout.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")
-		.attr("d",path);
+		.attr("d",path_big);
 
 		g_bjp.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")    
 		.attr("class",function(d){
-
 			if (d.properties["W_P"+year]=="BJP") return "won";
 			else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
 			else return "third";
 		})
-		.attr("d", path);
+		.attr("d", path_small);
 
 		g_inc.selectAll("path")
 		.data(geo_obj.features)
@@ -321,7 +358,7 @@ function oldmaps(year){
 			else 
 				return "third";
 		})
-		.attr("d", path);
+		.attr("d", path_small);
 
 		g_sp.selectAll("path")
 		.data(geo_obj.features)
@@ -331,7 +368,7 @@ function oldmaps(year){
 			else if(d.properties["RU_P"+year]=="SP") return "runnerup";
 			else return "third";
 		})
-		.attr("d", path);
+		.attr("d", path_small);
 
 		g_bsp.selectAll("path")
 		.data(geo_obj.features)
@@ -341,8 +378,7 @@ function oldmaps(year){
 			else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
 			else return "third";
 		})
-		.attr("d", path);
-
+		.attr("d", path_small);
 		g_turnout.selectAll("path")
 		.each(function(d,i){
 			d3.select(this)
@@ -352,39 +388,52 @@ function oldmaps(year){
 			});
 		});
 
-		g_bjp.selectAll("path")
-		.each(function(d,i){
-			d3.select(this)
+		
+		g_bjp.selectAll("path").each(function(){
+			d3.select(this).attr("class",function(d){
+				if (d.properties["W_P"+year]=="BJP") return "won";
+				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
+				else return "third";
+			})
 			.transition(t)
 			.style("fill",function(d){
-				return (d.properties["W_P"+year]=="BJP")?col_scale(+d.properties["Margin"+year]):"white";
+				return +d.properties["BJP"+year]-(+d.properties["W_V"+year])==0?bjp_col_scale(+d.properties["BJP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BJP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
-
-		g_inc.selectAll("path")
-		.each(function(d,i){
-			d3.select(this)
+		g_inc.selectAll("path").each(function(){
+			d3.select(this).attr("class",function(d){
+				if (d.properties["W_P"+year]=="INC") 
+					return "won";
+				else if(d.properties["RU_P"+year]=="INC") 
+					return "runnerup";
+				else 
+					return "third";
+			})
 			.transition(t)
 			.style("fill",function(d){
-				return (d.properties["W_P"+year]=="INC")?col_scale(+d.properties["Margin"+year]):"white";
+				return +d.properties["INC"+year]-(+d.properties["W_V"+year])==0?inc_col_scale(+d.properties["INC"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["INC"+year]-(+d.properties["W_V"+year])));
+			});;
+		});
+		g_sp.selectAll("path").each(function(){
+			d3.select(this).attr("class",function(d){
+				if (d.properties["W_P"+year]=="SP") return "won";
+				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
+				else return "third";
+			})
+			.transition(t)
+			.style("fill",function(d){
+				return +d.properties["SP"+year]-(+d.properties["W_V"+year])==0?sp_col_scale(+d.properties["SP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["SP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
-
-		g_sp.selectAll("path")
-		.each(function(d,i){
-			d3.select(this)
+		g_bsp.selectAll("path").each(function(){
+			d3.select(this).attr("class",function(d){
+				if (d.properties["W_P"+year]=="BSP") return "won";
+				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
+				else return "third";
+			})
 			.transition(t)
 			.style("fill",function(d){
-				return (d.properties["W_P"+year]=="SP")?col_scale(+d.properties["Margin"+year]):"white";
-			});
-		});
-
-		g_bsp.selectAll("path")
-		.each(function(d,i){
-			d3.select(this)
-			.transition(t)
-			.style("fill",function(d){
-				return (d.properties["W_P"+year]=="BSP")?col_scale(+d.properties["Margin"+year]):"white";
+				return +d.properties["BSP"+year]-(+d.properties["W_V"+year])==0?bsp_col_scale(+d.properties["BSP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BSP"+year]-(+d.properties["W_V"+year])));
 			});
 
 		});
