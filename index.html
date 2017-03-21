@@ -36,7 +36,7 @@
 </body>
 
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <script>
 
@@ -48,11 +48,77 @@
     'IND': '#65737e'
 }
 
+
+function showtooltip(){
+	mouse=d3.mouse(this);
+
+	var consti=".a"+d3.select(this).data()[0].properties["AC_NO"];
+
+	
+	d3.selectAll(consti).each(function(){
+		
+		d3.select(this).style("stroke-width","1");
+	});
+	var g_turnout=d3.select(".turnout.toviz");
+	var g_bjp=d3.select(".bjp.toviz");
+	var g_inc=d3.select(".inc.toviz");
+	var g_sp=d3.select(".sp.toviz");
+	var g_bsp=d3.select(".bsp.toviz");
+	
+	d3.selectAll(".description").each(function(){
+		d3.select(this).selectAll("text").remove();
+	});
+	g_turnout.select(".description").append("text").text("Turnout").attr("x","1.2em").attr("y",15);
+	g_bjp.select(".description").append("text").text("BJP").attr("x","1.2em").attr("y",15);
+	g_inc.select(".description").append("text").text("INC").attr("x","1.2em").attr("y",15);
+	g_sp.select(".description").append("text").text("SP").attr("x","1.2em").attr("y",15);
+	g_bsp.select(".description").append("text").text("BSP").attr("x","1.2em").attr("y",15);
+	
+	if(this.parentNode.getAttribute("class")=="turnout toviz")
+	{
+		g_turnout.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+5)+","+(mouse[1]-20)+")"})
+		.classed("hidden",false);
+		g_bjp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.classed("hidden",false);
+		g_inc.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.classed("hidden",false);
+		g_sp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.classed("hidden",false);
+		g_bsp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.classed("hidden",false);
+	}
+	else{
+		g_turnout.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]*2+30)+","+(mouse[1]*2-20)+")"})
+		.classed("hidden",false);
+		g_bjp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.classed("hidden",false);
+		g_inc.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.classed("hidden",false);
+		g_sp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.classed("hidden",false);
+		g_bsp.select(".tooltip")
+		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.classed("hidden",false);
+	}
+
+}
+
 function toggle(option){
+
 	var tocheckornottocheck=(option.getAttribute("checked")=="unchecked")?"checked":"unchecked";
 	option.setAttribute("checked",tocheckornottocheck);
+
 	Array.from(document.getElementsByClassName(option.value)).forEach(function(element){
-		element.classList.toggle("hidden");
+		element.classList.toggle("hideconsti");
 	});
 }
 function makeviz(year){
@@ -72,17 +138,18 @@ function newmaps(year){
 
 		var geo_obj=topojson.feature(up,up.objects.up);
 
+		var width=1000;
+		var height=600;
+		var padding=20;
+
 		var projection_small=d3.geoMercator()
-		.fitSize([230,230],geo_obj);
+		.fitSize([(width/4-padding),(width/4-padding)],geo_obj);
 
 		var projection_big=d3.geoMercator()
-		.fitSize([480,480],geo_obj);
+		.fitSize([(width/2-padding),(width/2-padding)],geo_obj);
 
 		var path_small = d3.geoPath().projection(projection_small);
 		var path_big=d3.geoPath().projection(projection_big);
-
-		var width=1250;
-		var height=600;
 
 		var g_turnout=d3.select(".turnout.toviz");
 		var g_bjp=d3.select(".bjp.toviz");;
@@ -91,8 +158,8 @@ function newmaps(year){
 		var g_bsp=d3.select(".bsp.toviz");;
 
 		var loss_scale=d3.scaleLinear()
-		.domain([-230000,-88000])
-		.range(["#aaa","#700019"]);
+		.domain([-230000,-171])
+		.range(["#f46d43","#d73027"]);
 
 		var tout_scale= d3.scaleQuantize()
 		.domain([30,100])
@@ -107,78 +174,130 @@ function newmaps(year){
 		.range(['#d9ef8b',"#006837"]);
 
 		var bsp_col_scale= d3.scaleLinear()
-		.domain([0,27000])
+		.domain([0,53000])
 		.range(['#d9ef8b',"#006837"]);
 
 		var sp_col_scale= d3.scaleLinear()
-		.domain([0,53000])
+		.domain([0,82000])
 		.range(['#d9ef8b',"#006837"]);
 
 		var previous=document.getElementById("year_dropdown").dataset.oldValue;
 		document.getElementById("year_dropdown").dataset.oldValue=year;
 		var svg=d3.select("#tout_chart_container");
 
-
+		var g_turnout;
+		var g_bjp;
+		var g_inc;
+		var g_sp;
+		var g_bsp;
 
 		if(document.getElementById("year_dropdown").dataset.firstRun==="true" || previous==="07")
 		{
 			
 			d3.select("#tout_chart_container").remove();
-			svg = d3.select(".toviz").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-			g_turnout=svg.append("g").attr("width",500).attr("height",600).attr("class","turnout toviz").attr("transform","translate(0,0)");
-			g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(600,0)");
-			g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(950,0)");
-			g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(600,300)");
-			g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(950,300)");
+			svg = d3.select(".toviz").append("svg").attr("width",1250).attr("height",height).attr("id","tout_chart_container");
+			g_turnout=svg.append("g").attr("width",width/2).attr("height",height).attr("class","turnout toviz").attr("transform","translate(0,0)");
+			g_bjp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bjp toviz").attr("transform","translate(600,0)");
+			g_inc=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","inc toviz").attr("transform","translate(950,0)");
+			g_sp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","sp toviz").attr("transform","translate(600,300)");
+			g_bsp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bsp toviz").attr("transform","translate(950,300)");
 
 			g_turnout.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
-			.attr("d",path_big);
+			.attr("d",path_big)
+			.attr("class",function(d){
+				return "a"+d.properties["AC_NO"];
+			})
+			.on("mouseover",showtooltip)
+			.on("mouseout",function(d){
+				consti=".a"+d.properties["AC_NO"];
+				d3.selectAll(".tooltip").each(function(){
+					d3.select(this).classed("hidden",true);
+					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+				});
+			});
 
 			g_bjp.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")    
 			.attr("class",function(d){
-				if (d.properties["W_P"+year]=="BJP") return "won";
-				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
-				else return "third";
+				if (d.properties["W_P"+year]=="BJP") return "a"+d.properties["AC_NO"]+"won";
+				else if(d.properties["RU_P"+year]=="BJP") return "a"+d.properties["AC_NO"]+"runnerup";
+				else return "a"+d.properties["AC_NO"]+"third";
 			})
-			.attr("d", path_small);
+			.attr("d", path_small)
+			.on("mouseover",showtooltip)
+			.on("mouseout",function(d){
+				consti=".a"+d.properties["AC_NO"];
+				d3.selectAll(".tooltip").each(function(){
+					d3.select(this).classed("hidden",true);
+					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+				});
+			});
 
 			g_inc.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
 			.attr("class",function(d){
 				if (d.properties["W_P"+year]=="INC") 
-					return "won";
+					return "won"+" a"+d.properties["AC_NO"];
 				else if(d.properties["RU_P"+year]=="INC") 
-					return "runnerup";
+					return "runnerup"+" a"+d.properties["AC_NO"];
 				else 
-					return "third";
+					return "third"+" a"+d.properties["AC_NO"];
 			})
-			.attr("d", path_small);
+			.attr("d", path_small)
+			.on("mouseover",showtooltip)
+			.on("mouseout",function(d){
+				consti=".a"+d.properties["AC_NO"];
+				d3.selectAll(".tooltip").each(function(){
+					d3.select(this).classed("hidden",true);
+					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+				});
+			});
 
 			g_sp.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
 			.attr("class",function(d){
-				if (d.properties["W_P"+year]=="SP") return "won";
-				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
-				else return "third";
+				return "a"+d.properties["AC_NO"];
 			})
-			.attr("d", path_small);
+			.attr("class",function(d){
+				if (d.properties["W_P"+year]=="SP") return "won"+" a"+d.properties["AC_NO"];
+				else if(d.properties["RU_P"+year]=="SP") return "runnerup"+" a"+d.properties["AC_NO"];
+				else return "third"+" a"+d.properties["AC_NO"];
+			})
+			.attr("d", path_small)
+			.on("mouseover",showtooltip)
+			.on("mouseout",function(d){
+				consti=".a"+d.properties["AC_NO"];
+				d3.selectAll(".tooltip").each(function(){
+					d3.select(this).classed("hidden",true);
+					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+				});
+			});
 
 			g_bsp.selectAll("path")
 			.data(geo_obj.features)
 			.enter().append("path")
 			.attr("class",function(d){
-				if (d.properties["W_P"+year]=="BSP") return "won";
-				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
-				else return "third";
+				return "a"+d.properties["AC_NO"];
 			})
-			.attr("d", path_small);
-
+			.attr("class",function(d){
+				if (d.properties["W_P"+year]=="BSP") return "won"+" a"+d.properties["AC_NO"];
+				else if(d.properties["RU_P"+year]=="BSP") return "runnerup"+" a"+d.properties["AC_NO"];
+				else return "third"+" a"+d.properties["AC_NO"];
+			})
+			.attr("d", path_small)
+			.on("mouseover",showtooltip)
+			.on("mouseout",function(d){
+				consti=".a"+d.properties["AC_NO"];
+				d3.selectAll(".tooltip").each(function(){
+					d3.select(this).classed("hidden",true);
+					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+				});
+			});
 			document.getElementById("year_dropdown").dataset.firstRun="false";
 		}
 
@@ -186,15 +305,47 @@ function newmaps(year){
 		.duration(250)
 		.ease(d3.easeLinear);
 
-		var g_turnout=d3.select(".turnout.toviz");
-		var g_bjp=d3.select(".bjp.toviz");
-		var g_inc=d3.select(".inc.toviz");
-		var g_sp=d3.select(".sp.toviz");
-		var g_bsp=d3.select(".bsp.toviz");
-		
+		g_turnout=d3.select(".turnout.toviz");
+		g_bjp=d3.select(".bjp.toviz");
+		g_inc=d3.select(".inc.toviz");
+		g_sp=d3.select(".sp.toviz");
+		g_bsp=d3.select(".bsp.toviz");
+
+		d3.selectAll("g.toviz").each(function(){
+			var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
+			tooltip.append("g").attr("class","description")
+			.append("rect")
+			.attr("width",100)
+			.attr("height",50);
+		});
+
+		//g_turnout.append("rect").attr("class","overlay")
+		//.attr("width",width/2)
+		//.attr("height",(height-padding));
+//		
+		//g_bjp.append("rect").attr("class","overlay")
+		//.attr("width",width/4)
+		//.attr("height",(height/2-padding));
+//
+		//g_inc.append("rect").attr("class","overlay")
+		//.attr("width",width/4)
+		//.attr("height",(height/2-padding));
+//
+		//g_sp.append("rect").attr("class","overlay")
+		//.attr("width",width/4)
+		//.attr("height",(height/2-padding));
+//
+		//g_bsp.append("rect").attr("class","overlay")
+		//.attr("width",width/4)
+		//.attr("height",(height/2-padding));
+
+
 		g_turnout.selectAll("path")
 		.each(function(d,i){
 			d3.select(this)
+			.attr("class",function(d){
+				return "a"+d.properties["AC_NO"];
+			})
 			.transition(t)
 			.style("fill",function(d){
 				return tout_scale(+d.properties["Turnout"+year]);
@@ -202,64 +353,87 @@ function newmaps(year){
 		});
 
 		g_bjp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="BJP") return "won";
-				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
-				else return "third";
+			d3.select(this)
+			.attr("class",function(d){
+				if (d.properties["W_P"+year]=="BJP") 
+					return "won "+" a"+d.properties["AC_NO"];
+				else if(d.properties["RU_P"+year]=="BJP") 
+					return "runnerup "+" a"+d.properties["AC_NO"];
+				else 
+					return "third "+" a"+d.properties["AC_NO"];
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["BJP"+year]-(+d.properties["W_V"+year])==0?bjp_col_scale(+d.properties["BJP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BJP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["BJP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["BJP"+year]-(+d.properties["W_V"+year])==0?bjp_col_scale(+d.properties["BJP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BJP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
 		g_inc.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
+			d3.select(this)
+			.attr("class",function(d){
 				if (d.properties["W_P"+year]=="INC") 
-					return "won";
+					return "won "+" a"+d.properties["AC_NO"];
 				else if(d.properties["RU_P"+year]=="INC") 
-					return "runnerup";
+					return "runnerup "+" a"+d.properties["AC_NO"];
 				else 
-					return "third";
+					return "third "+" a"+d.properties["AC_NO"];
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["INC"+year]-(+d.properties["W_V"+year])==0?inc_col_scale(+d.properties["INC"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["INC"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["INC"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["INC"+year]-(+d.properties["W_V"+year])==0?inc_col_scale(+d.properties["INC"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["INC"+year]-(+d.properties["W_V"+year])));
 			});;
 		});
 		g_sp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="SP") return "won";
-				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
-				else return "third";
+			d3.select(this)
+			.attr("class",function(d){
+				if (d.properties["W_P"+year]=="SP") return "won "+" a"+d.properties["AC_NO"];
+				else if(d.properties["RU_P"+year]=="SP") return "runnerup "+" a"+d.properties["AC_NO"];
+				else return "third "+" a"+d.properties["AC_NO"];
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["SP"+year]-(+d.properties["W_V"+year])==0?sp_col_scale(+d.properties["SP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["SP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["SP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["SP"+year]-(+d.properties["W_V"+year])==0?sp_col_scale(+d.properties["SP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["SP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
 		g_bsp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="BSP") return "won";
-				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
-				else return "third";
+			d3.select(this)
+			.attr("class",function(d){
+				if (d.properties["W_P"+year]=="BSP") return "won "+" a"+d.properties["AC_NO"];
+				else if(d.properties["RU_P"+year]=="BSP") return "runnerup "+" a"+d.properties["AC_NO"];
+				else return "third "+" a"+d.properties["AC_NO"];
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["BSP"+year]-(+d.properties["W_V"+year])==0?bsp_col_scale(+d.properties["BSP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BSP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["BSP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["BSP"+year]-(+d.properties["W_V"+year])==0?bsp_col_scale(+d.properties["BSP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BSP"+year]-(+d.properties["W_V"+year])));
 			});
 
 		});
-		
+
 
 		Array.from(document.getElementsByClassName("checkbox")).forEach(function(element){
 			if(element.getAttribute("checked")=="unchecked")
 			{
-				element.classList.toggle("hidden");
+				element.classList.toggle("hideconsti");
+			}
+		});
+
+		d3.selectAll(".checkbox").each(function(){
+			checkbox=d3.select(this);
+			if(checkbox.attr("checked")=="unchecked")
+			{
+				
+				toggle(this);
+				checkbox.attr("checked","unchecked");
 			}
 		});
 	});
-
-
 
 }
 
@@ -280,17 +454,18 @@ function oldmaps(year){
 
 		var geo_obj=topojson.feature(up,up.objects.up);
 
+		var width=1000;
+		var height=600;
+		var padding=20;
+
 		var projection_small=d3.geoMercator()
-		.fitSize([230,230],geo_obj);
+		.fitSize([(width/4-padding),(width/4-padding)],geo_obj);
 
 		var projection_big=d3.geoMercator()
-		.fitSize([480,480],geo_obj);
+		.fitSize([(width/2-padding),(width/2-padding)],geo_obj);
 
 		var path_small = d3.geoPath().projection(projection_small);
 		var path_big=d3.geoPath().projection(projection_big);
-
-		var width=1250;
-		var height=600;
 
 		var g_turnout=d3.select(".turnout.toviz");
 		var g_bjp=d3.select(".bjp.toviz");;
@@ -299,86 +474,138 @@ function oldmaps(year){
 		var g_bsp=d3.select(".bsp.toviz");;
 
 		var loss_scale=d3.scaleLinear()
-		.domain([-230000,-88000])
-		.range(["#aaa","#700019"]);
+		.domain([-90000,-171])
+		.range(["#f46d43","#d73027"]);
 
 		var tout_scale= d3.scaleQuantize()
-		.domain([30,100])
+		.domain([20,100])
 		.range(['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d']);
 
 		var bjp_col_scale= d3.scaleLinear()
-		.domain([0,151000])
-		.range(['#d9ef8b',"#006837"]);
-
-		var inc_col_scale= d3.scaleLinear()
-		.domain([4000,89200])
-		.range(['#d9ef8b',"#006837"]);
-
-		var bsp_col_scale= d3.scaleLinear()
 		.domain([0,27000])
 		.range(['#d9ef8b',"#006837"]);
 
+		var inc_col_scale= d3.scaleLinear()
+		.domain([0,41000])
+		.range(['#d9ef8b',"#006837"]);
+
+		var bsp_col_scale= d3.scaleLinear()
+		.domain([0,53100])
+		.range(['#d9ef8b',"#006837"]);
+
 		var sp_col_scale= d3.scaleLinear()
-		.domain([0,53000])
+		.domain([0,34000])
 		.range(['#d9ef8b',"#006837"]);
 
 
+
 		d3.select("#tout_chart_container").remove();
-		var svg = d3.select(".toviz").append("svg").attr("width",width).attr("height",height).attr("id","tout_chart_container");
-		g_turnout=svg.append("g").attr("width",500).attr("height",500).attr("class","turnout toviz").attr("transform","translate(0,0)");
-		g_bjp=svg.append("g").attr("width",250).attr("height",250).attr("class","bjp toviz").attr("transform","translate(600,0)");
-		g_inc=svg.append("g").attr("width",250).attr("height",250).attr("class","inc toviz").attr("transform","translate(950,0)");
-		g_sp=svg.append("g").attr("width",250).attr("height",250).attr("class","sp toviz").attr("transform","translate(600,300)");
-		g_bsp=svg.append("g").attr("width",250).attr("height",250).attr("class","bsp toviz").attr("transform","translate(950,300)");
+		svg = d3.select(".toviz").append("svg").attr("width",1250).attr("height",height).attr("id","tout_chart_container");
+		g_turnout=svg.append("g").attr("width",width/2).attr("height",height).attr("class","turnout toviz").attr("transform","translate(0,0)");
+		g_bjp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bjp toviz").attr("transform","translate(600,0)");
+		g_inc=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","inc toviz").attr("transform","translate(950,0)");
+		g_sp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","sp toviz").attr("transform","translate(600,300)");
+		g_bsp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bsp toviz").attr("transform","translate(950,300)");
+
 
 
 		g_turnout.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")
-		.attr("d",path_big);
+		.attr("class",function(d){
+			return "a"+d.properties["AC_NO"];
+		})
+		.attr("d",path_big)
+		.on("mouseover",showtooltip)
+		.on("mouseout",function(d){
+			consti=".a"+d.properties["AC_NO"];
+			d3.selectAll(".tooltip").each(function(){
+				d3.select(this).classed("hidden",true);
+				d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+			});
+		});
 
 		g_bjp.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")    
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="BJP") return "won";
-			else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
-			else return "third";
+			if (d.properties["W_P"+year]=="BJP") return "won"+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="BJP") return "runnerup "+" a"+d.properties["AC_NO"];
+			else return "third "+" a"+d.properties["AC_NO"];
 		})
-		.attr("d", path_small);
+		.attr("d", path_small)
+		.on("mouseover",showtooltip)
+		.on("mouseout",function(d){
+			consti=".a"+d.properties["AC_NO"];
+			d3.selectAll(".tooltip").each(function(){
+				d3.select(this).classed("hidden",true);
+				d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+			});
+		});
 
 		g_inc.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="INC") 
-				return "won";
-			else if(d.properties["RU_P"+year]=="INC") 
-				return "runnerup";
-			else 
-				return "third";
+			if (d.properties["W_P"+year]=="INC") return "won "+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="INC") return "runnerup "+" a"+d.properties["AC_NO"];
+			else return "third "+" a"+d.properties["AC_NO"];
 		})
-		.attr("d", path_small);
+		.attr("d", path_small)
+		.on("mouseover",showtooltip)
+		.on("mouseout",function(d){
+			consti=".a"+d.properties["AC_NO"];
+			d3.selectAll(".tooltip").each(function(){
+				d3.select(this).classed("hidden",true);
+				d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+			});
+		});
 
 		g_sp.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="SP") return "won";
-			else if(d.properties["RU_P"+year]=="SP") return "runnerup";
-			else return "third";
+			if (d.properties["W_P"+year]=="SP") return "won "+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="SP") return "runnerup "+" a"+d.properties["AC_NO"];
+			else return "third "+" a"+d.properties["AC_NO"];
 		})
-		.attr("d", path_small);
+		.attr("d", path_small)
+		.on("mouseover",showtooltip)
+		.on("mouseout",function(d){
+			consti=".a"+d.properties["AC_NO"];
+			d3.selectAll(".tooltip").each(function(){
+				d3.select(this).classed("hidden",true);
+				d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+			});
+		});
 
 		g_bsp.selectAll("path")
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="BSP") return "won";
-			else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
-			else return "third";
+			if (d.properties["W_P"+year]=="BSP") return "won "+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="BSP") return "runnerup "+" a"+d.properties["AC_NO"];
+			else return "third "+" a"+d.properties["AC_NO"];
 		})
-		.attr("d", path_small);
+		.attr("d", path_small)
+		.on("mouseover",showtooltip)
+		.on("mouseout",function(d){
+			consti=".a"+d.properties["AC_NO"];
+			d3.selectAll(".tooltip").each(function(){
+				d3.select(this).classed("hidden",true);
+				d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
+			});
+		});
+
+
+		d3.selectAll("g.toviz").each(function(){
+			var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
+			tooltip.append("g").attr("class","description")
+			.append("rect")
+			.attr("width",100)
+			.attr("height",50);
+		});
+
 		g_turnout.selectAll("path")
 		.each(function(d,i){
 			d3.select(this)
@@ -388,18 +615,16 @@ function oldmaps(year){
 			});
 		});
 
-		
 		g_bjp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="BJP") return "won";
-				else if(d.properties["RU_P"+year]=="BJP") return "runnerup";
-				else return "third";
-			})
+			d3.select(this)
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["BJP"+year]-(+d.properties["W_V"+year])==0?bjp_col_scale(+d.properties["BJP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BJP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["BJP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["BJP"+year]-(+d.properties["W_V"+year])==0?bjp_col_scale(+d.properties["BJP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BJP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
+
 		g_inc.selectAll("path").each(function(){
 			d3.select(this).attr("class",function(d){
 				if (d.properties["W_P"+year]=="INC") 
@@ -411,9 +636,12 @@ function oldmaps(year){
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["INC"+year]-(+d.properties["W_V"+year])==0?inc_col_scale(+d.properties["INC"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["INC"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["INC"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["INC"+year]-(+d.properties["W_V"+year])==0?inc_col_scale(+d.properties["INC"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["INC"+year]-(+d.properties["W_V"+year])));
 			});;
 		});
+
 		g_sp.selectAll("path").each(function(){
 			d3.select(this).attr("class",function(d){
 				if (d.properties["W_P"+year]=="SP") return "won";
@@ -422,9 +650,12 @@ function oldmaps(year){
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["SP"+year]-(+d.properties["W_V"+year])==0?sp_col_scale(+d.properties["SP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["SP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["SP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["SP"+year]-(+d.properties["W_V"+year])==0?sp_col_scale(+d.properties["SP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["SP"+year]-(+d.properties["W_V"+year])));
 			});
 		});
+
 		g_bsp.selectAll("path").each(function(){
 			d3.select(this).attr("class",function(d){
 				if (d.properties["W_P"+year]=="BSP") return "won";
@@ -433,9 +664,21 @@ function oldmaps(year){
 			})
 			.transition(t)
 			.style("fill",function(d){
-				return +d.properties["BSP"+year]-(+d.properties["W_V"+year])==0?bsp_col_scale(+d.properties["BSP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BSP"+year]-(+d.properties["W_V"+year])));
+				if (d.properties["BSP"+year]=="NA") return "#aaa";
+				else
+					return +d.properties["BSP"+year]-(+d.properties["W_V"+year])==0?bsp_col_scale(+d.properties["BSP"+year]-(+d.properties["RU_V"+year])):loss_scale((+d.properties["BSP"+year]-(+d.properties["W_V"+year])));
 			});
 
+		});
+
+		d3.selectAll(".checkbox").each(function(){
+			checkbox=d3.select(this);
+			if(checkbox.attr("checked")=="unchecked")
+			{
+				debugger;
+				toggle(this);
+				checkbox.attr("checked","unchecked");
+			}
 		});
 
 	});
