@@ -57,11 +57,11 @@ g{
   margin-left: 10px;
   text-decoration: none;
   color: #ccc;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .checkbox_label:hover > .toggle_checkbox{
-  color: #444;
+  color: #777;
 }
 
 .noselect {
