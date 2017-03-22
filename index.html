@@ -619,28 +619,28 @@ function oldmaps(year){
 		var g_bsp=d3.select(".bsp.toviz");;
 
 		var loss_scale=d3.scaleLinear()
-		.domain([-90000,-171])
+		.domain([-230000,-171])
 		.range(["#222","#ddd"]);
 
 		var tout_scale= d3.scaleQuantize()
-		.domain([20,100])
-		.range(['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d']);
+		.domain([30,100])
+		.range(['#edf8fb','#bfd3e6','#9ebcda','#8c96c6','#8c6bb1','#88419d','#6e016b']);
 
 		var bjp_col_scale= d3.scaleLinear()
-		.domain([0,27000])
+		.domain([0,151000])
 		.range(['#ffd296',party_colors["BJP"]]);
 
 		var inc_col_scale= d3.scaleLinear()
-		.domain([0,41000])
+		.domain([4000,89200])
 		.range(['#b6deef',party_colors["INC"]]);
 
-		var bsp_col_scale= d3.scaleLinear()
-		.domain([0,53100])
-		.range(['#c2f796',party_colors["BSP"]]);
-
 		var sp_col_scale= d3.scaleLinear()
-		.domain([0,34000])
+		.domain([0,82000])
 		.range(['#f9869d',party_colors["SP"]]);
+
+		var bsp_col_scale= d3.scaleLinear()
+		.domain([0,53000])
+		.range(['#c2f796',party_colors["BSP"]]);
 
 
 
