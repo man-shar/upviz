@@ -1,38 +1,62 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="viz.css">
 <body onload="newmaps('17')">
-	<div class="options_container noselect">
-		<div class="year_dropdown_container">
-			<select id="year_dropdown" name="select" onchange="makeviz(this)" data-old-value="17" data-first-run="true" autocomplete="off">
-				<option value="17" >2017</option> 
-				<option value="12">2012</option>
-				<option value="07">2007</option>
-			</select>
+	<div class="options_container noselect" >
+		<div id="year_dropdown" data-old-value="17" data-first-run="true" autocomplete="off">
+			<form>
+				<div>
+					<label class="noselect">
+						<input autocomplete="off" name="year" type="radio" class="radio" onclick="makeviz(this)" value="17" checked="checked">
+						2017
+					</label>
+				</div>
+				<div>
+					<label class="noselect">
+						<input autocomplete="off" name="year" type="radio" class="radio" onclick="makeviz(this)" value="12">
+						2012
+					</label>
+				</div>
+				<div>
+					<label class="noselect">
+						<input autocomplete="off" name="year" type="radio" class="radio" onclick="makeviz(this)" value="07">
+						2007
+					</label>
+				</div>
+			</form>
 		</div>
 		<div class="position_toggle_container noselect">
 			<div>
 				<label class="noselect">
 					<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
-					Constituencies where the party won
+					<span class="checkbox_label">
+						Constituencies where the party won
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
 				</label>
 			</div>
 			<div>
 				<label class="noselect">
 					<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
-					Constituencies where the party was the runner up
+					<span class="checkbox_label">
+						Constituencies where the party was the runner up
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
 				</label>
 			</div>
 			<div>
 				<label class="noselect">
 					<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
-					Constituencies where the party was 3rd and Below
+					<span class="checkbox_label">
+						Constituencies where the party was 3rd and Below
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
 				</label>
 			</div>
 		</div>
 	</div>
 	<div class="toviz">
 	</div>
-	
+
 </body>
 
 
@@ -41,13 +65,32 @@
 <script>
 
 	var party_colors = {
+
+		"Turnout":"#762a83",
     'INC': '#0392cf', // blue
-    'BJP': '#feb24c', // orange
-    'SP': '#bd0026', // red
-    'BSP': '#7bc043', // green
+    'BJP': '#feb24c', // orange //#ffd296
+    'BSP': '#7bc043', // green #9ac677
+    'SP': '#bd0026', // red #d37689
     'IND': '#65737e'
 }
 
+
+function checkOnly(option){
+	var checkbox=option.parentNode.previousElementSibling;
+	var id=checkbox.getAttribute("id");
+	if(checkbox.getAttribute("checked")=="unchecked"){
+		
+		checkbox.click();
+	}
+	d3.selectAll(".checkbox").each(function(){
+		if (this.getAttribute("id")!=id){
+			
+			if (this.getAttribute("checked")=="checked")
+				this.click();
+		}
+	})
+
+}
 
 function showtooltip(){
 	mouse=d3.mouse(this);
@@ -64,49 +107,99 @@ function showtooltip(){
 	var g_inc=d3.select(".inc.toviz");
 	var g_sp=d3.select(".sp.toviz");
 	var g_bsp=d3.select(".bsp.toviz");
-	
+	var glist=[g_turnout,g_bjp,g_inc,g_sp,g_bsp];
 	d3.selectAll(".description").each(function(){
 		d3.select(this).selectAll("text").remove();
 	});
-	g_turnout.select(".description").append("text").text("Turnout").attr("x","1.2em").attr("y",15);
-	g_bjp.select(".description").append("text").text("BJP").attr("x","1.2em").attr("y",15);
-	g_inc.select(".description").append("text").text("INC").attr("x","1.2em").attr("y",15);
-	g_sp.select(".description").append("text").text("SP").attr("x","1.2em").attr("y",15);
-	g_bsp.select(".description").append("text").text("BSP").attr("x","1.2em").attr("y",15);
+
+	var year=document.getElementById("year_dropdown").dataset.oldValue;
+
+	g_turnout.select(".description").append("text").text(d3.select(this).data()[0].properties["AC_NAME"]).attr("x",5).attr("y",15).style("font-size","13px").style("font-weight","700").style("fill",party_colors["Turnout"]);	
+
+	g_turnout.select(".description").append("text").text("Turnout: "+(Math.round(d3.select(this).data()[0].properties["Turnout"+year]*100)/100)+"%").attr("x",5).attr("y",35).style("font-size","12px").style("font-weight","400")
+
+	//g_turnout.select(".description").append("text").text(d3.select(this).data()[0].properties["Turnout"+year]+"%").attr("x",5).attr("y",43).style("font-size","12px").style("font-weight","400");
+
+	for (var i=1;i<glist.length;i++){
+		var line="";
+		var party=glist[i].attr("party");
+		var votes=d3.select(this).data()[0].properties[party+year];
+		var win_votes=d3.select(this).data()[0].properties["W_V"+year];
+		var win_party=d3.select(this).data()[0].properties["W_P"+year];
+		var runnerup_party=d3.select(this).data()[0].properties["RU_P"+year];
+		
+		var margin=Math.abs(+votes-(+win_votes))==0?+votes:Math.abs(+votes-(+win_votes));
+		if(party==win_party){ 
+			glist[i].select(".description").append("text").text(party).attr("x",5).attr("y",15).style("font-size","13px").style("font-weight","700").style("fill",party_colors[party]);
+			if(votes!="NA"){
+				glist[i].select(".description").append("text").text("Winner").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+				glist[i].select(".description").append("text").text("Margin of victory : "+margin).attr("x",5).attr("y",43).style("font-size","12px").style("font-weight","400");
+			}
+			else
+			{
+				glist[i].select(".description").append("text").text("Did Not Contest").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+			}
+		}
+		else if(party==runnerup_party){ 
+			glist[i].select(".description").append("text").text(party).attr("x",5).attr("y",15).style("font-size","12px").style("font-weight","700").style("fill",party_colors[party]);
+			if(votes!="NA"){
+				glist[i].select(".description").append("text").text("Runner Up").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+				glist[i].select(".description").append("text").text("Margin of loss : "+margin).attr("x",5).attr("y",43).style("font-size","12px").style("font-weight","400");
+			}
+			else
+			{
+				glist[i].select(".description").append("text").text("Did Not Contest").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+			}
+		}
+		else{ 
+			glist[i].select(".description").append("text").text(party).attr("x",5).attr("y",15).style("font-size","12px").style("font-weight","700").style("fill",party_colors[party]);
+			if(votes!="NA"){
+				glist[i].select(".description").append("text").text("Third or Below").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+				glist[i].select(".description").append("text").text("Margin of loss : "+margin).attr("x",5).attr("y",43).style("font-size","12px").style("font-weight","400");
+			}
+			else
+			{
+				glist[i].select(".description").append("text").text("Did Not Contest").attr("x",5).attr("y",30).style("font-size","12px").style("font-weight","400");
+			}
+		}
+		//var votes=d3.select(this).data()[0].properties[]
+		
+		
+	}
 	
 	if(this.parentNode.getAttribute("class")=="turnout toviz")
 	{
 		g_turnout.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+5)+","+(mouse[1]-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
 		g_bjp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-40)+")";})
 		.classed("hidden",false);
 		g_inc.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-40)+")";})
 		.classed("hidden",false);
 		g_sp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-40)+")";})
 		.classed("hidden",false);
 		g_bsp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+5)/2+","+(mouse[1]-20)/2+")"})
+		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-40)+")";})
 		.classed("hidden",false);
 	}
 	else{
 		g_turnout.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]*2+30)+","+(mouse[1]*2-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]*1.7)+","+(mouse[1]*2-100)+")"})
 		.classed("hidden",false);
 		g_bjp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
 		g_inc.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
 		g_sp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
 		g_bsp.select(".tooltip")
-		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-20)+")"})
+		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
 	}
 
@@ -121,6 +214,7 @@ function toggle(option){
 		element.classList.toggle("hideconsti");
 	});
 }
+
 function makeviz(year){
 	if (year.value=="07"){
 		oldmaps(year.value);
@@ -143,7 +237,7 @@ function newmaps(year){
 		var padding=20;
 
 		var projection_small=d3.geoMercator()
-		.fitSize([(width/4-padding),(width/4-padding)],geo_obj);
+		.fitSize([(width/3.5-padding),(width/3.5-padding)],geo_obj);
 
 		var projection_big=d3.geoMercator()
 		.fitSize([(width/2-padding),(width/2-padding)],geo_obj);
@@ -159,7 +253,7 @@ function newmaps(year){
 
 		var loss_scale=d3.scaleLinear()
 		.domain([-230000,-171])
-		.range(["#f46d43","#d73027"]);
+		.range(["#222","#ddd"]);
 
 		var tout_scale= d3.scaleQuantize()
 		.domain([30,100])
@@ -167,19 +261,19 @@ function newmaps(year){
 
 		var bjp_col_scale= d3.scaleLinear()
 		.domain([0,151000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#ffd296',party_colors["BJP"]]);
 
 		var inc_col_scale= d3.scaleLinear()
 		.domain([4000,89200])
-		.range(['#d9ef8b',"#006837"]);
-
-		var bsp_col_scale= d3.scaleLinear()
-		.domain([0,53000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#b6deef',party_colors["INC"]]);
 
 		var sp_col_scale= d3.scaleLinear()
 		.domain([0,82000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#f9869d',party_colors["SP"]]);
+
+		var bsp_col_scale= d3.scaleLinear()
+		.domain([0,53000])
+		.range(['#c2f796',party_colors["BSP"]]);
 
 		var previous=document.getElementById("year_dropdown").dataset.oldValue;
 		document.getElementById("year_dropdown").dataset.oldValue=year;
@@ -197,10 +291,10 @@ function newmaps(year){
 			d3.select("#tout_chart_container").remove();
 			svg = d3.select(".toviz").append("svg").attr("width",1250).attr("height",height).attr("id","tout_chart_container");
 			g_turnout=svg.append("g").attr("width",width/2).attr("height",height).attr("class","turnout toviz").attr("transform","translate(0,0)");
-			g_bjp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bjp toviz").attr("transform","translate(600,0)");
-			g_inc=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","inc toviz").attr("transform","translate(950,0)");
-			g_sp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","sp toviz").attr("transform","translate(600,300)");
-			g_bsp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bsp toviz").attr("transform","translate(950,300)");
+			g_bjp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bjp toviz").attr("transform","translate(600,0)").attr("party","BJP");
+			g_inc=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","inc toviz").attr("transform","translate(950,0)").attr("party","INC");
+			g_sp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","sp toviz").attr("transform","translate(600,300)").attr("party","SP");
+			g_bsp=svg.append("g").attr("width",width/4).attr("height",(height/2)).attr("class","bsp toviz").attr("transform","translate(950,300)").attr("party","BSP");
 
 			g_turnout.selectAll("path")
 			.data(geo_obj.features)
@@ -217,6 +311,45 @@ function newmaps(year){
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
 			});
+
+			legend_cols=["#222","ddd","fff"];
+
+			var glist=[g_turnout,g_bjp,g_inc,g_sp,g_bsp];
+			var reflist=["Turnout","BJP","INC","SP","BSP"];
+			var party_midcolors=['#ffd296','#b6deef','#f9869d','#c2f796'];
+
+			g_turnout.append("text").text("TURNOUT MAP").attr("transform",function(){return "translate("+(width/2-150)+",20)"}).attr("class","map_label").style("fill",party_colors["Turnout"]).attr("text-anchor","middle");
+			var tout_colors=['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d'];
+			for(var j=0;j<5;j++)
+			{
+				glist[0].append("rect").attr("width",10).attr("height",10).attr("x",(width/2-175)+10*j).attr("y",30).style("fill",tout_colors[j*2]).style("stroke-width","0.2px").style("stroke","black");
+			}
+
+			glist[0].append("text").text("Low").attr("transform",function(){return "translate("+((width/2-175))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-175))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("High").attr("transform",function(){return "translate("+((width/2-125))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-125))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+
+
+
+			for(var i=1;i<glist.length;i++){
+				for(var j=0;j<3;j++)
+					glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+10*j).attr("y",30).style("fill",legend_cols[j]).style("stroke-width","0.2px").style("stroke","black");
+
+				glist[i].append("text").text(reflist[i]).attr("transform",function(){return "translate("+((width/4-55))+","+(20)+")";}).attr("class","map_label").attr("text-anchor","middle").style("fill",party_colors[reflist[i]]);
+
+				glist[i].append("text").text("High Loss").attr("transform",function(){return "translate("+((width/4-84))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("Margin").attr("transform",function(){return "translate("+((width/4-84))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("High Victory").attr("transform",function(){return "translate("+((width/4-24))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("Margin").attr("transform",function(){return "translate("+((width/4-24))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			}
+			for(var i=1;i<glist.length;i++){
+
+				glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+30).attr("y",30).style("fill",party_midcolors[i-1]).style("stroke-width","0.2px").style("stroke","black");
+
+				glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+40).attr("y",30).style("fill",party_colors[reflist[i]]).style("stroke-width","0.2px").style("stroke","black");
+			}
+
 
 			g_bjp.selectAll("path")
 			.data(geo_obj.features)
@@ -315,8 +448,8 @@ function newmaps(year){
 			var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
 			tooltip.append("g").attr("class","description")
 			.append("rect")
-			.attr("width",100)
-			.attr("height",50);
+			.attr("width","150")
+			.attr("height",55);
 		});
 
 		//g_turnout.append("rect").attr("class","overlay")
@@ -459,7 +592,7 @@ function oldmaps(year){
 		var padding=20;
 
 		var projection_small=d3.geoMercator()
-		.fitSize([(width/4-padding),(width/4-padding)],geo_obj);
+		.fitSize([(width/3.5-padding),(width/3.5-padding)],geo_obj);
 
 		var projection_big=d3.geoMercator()
 		.fitSize([(width/2-padding),(width/2-padding)],geo_obj);
@@ -475,7 +608,7 @@ function oldmaps(year){
 
 		var loss_scale=d3.scaleLinear()
 		.domain([-90000,-171])
-		.range(["#f46d43","#d73027"]);
+		.range(["#222","#ddd"]);
 
 		var tout_scale= d3.scaleQuantize()
 		.domain([20,100])
@@ -483,29 +616,68 @@ function oldmaps(year){
 
 		var bjp_col_scale= d3.scaleLinear()
 		.domain([0,27000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#ffd296',party_colors["BJP"]]);
 
 		var inc_col_scale= d3.scaleLinear()
 		.domain([0,41000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#b6deef',party_colors["INC"]]);
 
 		var bsp_col_scale= d3.scaleLinear()
 		.domain([0,53100])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#c2f796',party_colors["BSP"]]);
 
 		var sp_col_scale= d3.scaleLinear()
 		.domain([0,34000])
-		.range(['#d9ef8b',"#006837"]);
+		.range(['#f9869d',party_colors["SP"]]);
 
 
 
 		d3.select("#tout_chart_container").remove();
 		svg = d3.select(".toviz").append("svg").attr("width",1250).attr("height",height).attr("id","tout_chart_container");
 		g_turnout=svg.append("g").attr("width",width/2).attr("height",height).attr("class","turnout toviz").attr("transform","translate(0,0)");
-		g_bjp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bjp toviz").attr("transform","translate(600,0)");
-		g_inc=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","inc toviz").attr("transform","translate(950,0)");
-		g_sp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","sp toviz").attr("transform","translate(600,300)");
-		g_bsp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bsp toviz").attr("transform","translate(950,300)");
+		g_bjp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bjp toviz").attr("transform","translate(600,0)").attr("party","BJP");
+		g_inc=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","inc toviz").attr("transform","translate(950,0)").attr("party","INC");
+		g_sp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","sp toviz").attr("transform","translate(600,300)").attr("party","SP");
+		g_bsp=svg.append("g").attr("width",width/4).attr("height",(height)).attr("class","bsp toviz").attr("transform","translate(950,300)").attr("party","BSP");
+
+
+		legend_cols=["#222","ddd","fff"];
+
+			var glist=[g_turnout,g_bjp,g_inc,g_sp,g_bsp];
+			var reflist=["Turnout","BJP","INC","SP","BSP"];
+			var party_midcolors=['#ffd296','#b6deef','#f9869d','#c2f796'];
+
+			g_turnout.append("text").text("TURNOUT MAP").attr("transform",function(){return "translate("+(width/2-150)+",20)"}).attr("class","map_label").style("fill",party_colors["Turnout"]).attr("text-anchor","middle");
+			var tout_colors=['#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#54278f','#3f007d'];
+			for(var j=0;j<5;j++)
+			{
+				glist[0].append("rect").attr("width",10).attr("height",10).attr("x",(width/2-175)+10*j).attr("y",30).style("fill",tout_colors[j*2]).style("stroke-width","0.2px").style("stroke","black");
+			}
+
+			glist[0].append("text").text("Low").attr("transform",function(){return "translate("+((width/2-175))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-175))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("High").attr("transform",function(){return "translate("+((width/2-125))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-125))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+
+
+
+			for(var i=1;i<glist.length;i++){
+				for(var j=0;j<3;j++)
+					glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+10*j).attr("y",30).style("fill",legend_cols[j]).style("stroke-width","0.2px").style("stroke","black");
+
+				glist[i].append("text").text(reflist[i]).attr("transform",function(){return "translate("+((width/4-55))+","+(20)+")";}).attr("class","map_label").attr("text-anchor","middle").style("fill",party_colors[reflist[i]]);
+
+				glist[i].append("text").text("High Loss").attr("transform",function(){return "translate("+((width/4-84))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("Margin").attr("transform",function(){return "translate("+((width/4-84))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("High Victory").attr("transform",function(){return "translate("+((width/4-24))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+				glist[i].append("text").text("Margin").attr("transform",function(){return "translate("+((width/4-24))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+			}
+			for(var i=1;i<glist.length;i++){
+
+				glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+30).attr("y",30).style("fill",party_midcolors[i-1]).style("stroke-width","0.2px").style("stroke","black");
+
+				glist[i].append("rect").attr("width",10).attr("height",10).attr("x",(width/4-80)+40).attr("y",30).style("fill",party_colors[reflist[i]]).style("stroke-width","0.2px").style("stroke","black");
+			}
 
 
 
@@ -547,8 +719,8 @@ function oldmaps(year){
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="INC") return "won "+" a"+d.properties["AC_NO"];
-			else if(d.properties["RU_P"+year]=="INC") return "runnerup "+" a"+d.properties["AC_NO"];
+			if (d.properties["W_P"+year]=="INC") return "won "+"a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="INC") return "runnerup "+"a"+d.properties["AC_NO"];
 			else return "third "+" a"+d.properties["AC_NO"];
 		})
 		.attr("d", path_small)
@@ -565,9 +737,9 @@ function oldmaps(year){
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="SP") return "won "+" a"+d.properties["AC_NO"];
-			else if(d.properties["RU_P"+year]=="SP") return "runnerup "+" a"+d.properties["AC_NO"];
-			else return "third "+" a"+d.properties["AC_NO"];
+			if (d.properties["W_P"+year]=="SP") return "won"+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="SP") return "runnerup"+" a"+d.properties["AC_NO"];
+			else return "third "+"a"+d.properties["AC_NO"];
 		})
 		.attr("d", path_small)
 		.on("mouseover",showtooltip)
@@ -583,8 +755,8 @@ function oldmaps(year){
 		.data(geo_obj.features)
 		.enter().append("path")
 		.attr("class",function(d){
-			if (d.properties["W_P"+year]=="BSP") return "won "+" a"+d.properties["AC_NO"];
-			else if(d.properties["RU_P"+year]=="BSP") return "runnerup "+" a"+d.properties["AC_NO"];
+			if (d.properties["W_P"+year]=="BSP") return "won"+" a"+d.properties["AC_NO"];
+			else if(d.properties["RU_P"+year]=="BSP") return "runnerup"+" a"+d.properties["AC_NO"];
 			else return "third "+" a"+d.properties["AC_NO"];
 		})
 		.attr("d", path_small)
@@ -602,8 +774,8 @@ function oldmaps(year){
 			var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
 			tooltip.append("g").attr("class","description")
 			.append("rect")
-			.attr("width",100)
-			.attr("height",50);
+			.attr("width",150)
+			.attr("height",55);
 		});
 
 		g_turnout.selectAll("path")
@@ -626,14 +798,7 @@ function oldmaps(year){
 		});
 
 		g_inc.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="INC") 
-					return "won";
-				else if(d.properties["RU_P"+year]=="INC") 
-					return "runnerup";
-				else 
-					return "third";
-			})
+			d3.select(this)
 			.transition(t)
 			.style("fill",function(d){
 				if (d.properties["INC"+year]=="NA") return "#aaa";
@@ -643,11 +808,7 @@ function oldmaps(year){
 		});
 
 		g_sp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="SP") return "won";
-				else if(d.properties["RU_P"+year]=="SP") return "runnerup";
-				else return "third";
-			})
+			d3.select(this)
 			.transition(t)
 			.style("fill",function(d){
 				if (d.properties["SP"+year]=="NA") return "#aaa";
@@ -657,11 +818,7 @@ function oldmaps(year){
 		});
 
 		g_bsp.selectAll("path").each(function(){
-			d3.select(this).attr("class",function(d){
-				if (d.properties["W_P"+year]=="BSP") return "won";
-				else if(d.properties["RU_P"+year]=="BSP") return "runnerup";
-				else return "third";
-			})
+			d3.select(this)
 			.transition(t)
 			.style("fill",function(d){
 				if (d.properties["BSP"+year]=="NA") return "#aaa";
@@ -675,7 +832,6 @@ function oldmaps(year){
 			checkbox=d3.select(this);
 			if(checkbox.attr("checked")=="unchecked")
 			{
-				debugger;
 				toggle(this);
 				checkbox.attr("checked","unchecked");
 			}
