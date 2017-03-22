@@ -54,14 +54,14 @@ g{
 }
 
 .toggle_checkbox{
-  opacity: 0;
+  margin-left: 10px;
   text-decoration: none;
-  color: #444;
+  color: #ccc;
   font-size: 14px;
 }
 
 .checkbox_label:hover > .toggle_checkbox{
-  opacity: 1;
+  color: #444;
 }
 
 .noselect {
@@ -75,7 +75,9 @@ g{
 }
 
 .position_toggle_container{
-
+  position: relative;
+  bottom: 120px;
+  margin-left: 40px;
   display: inline-block;
 }
 #year_dropdown{
@@ -83,8 +85,8 @@ g{
   vertical-align: top;
   margin-right: 30px;
 }
-.year_dropdown > div{
-  display: inline-block;
+#year_dropdown > form > div{
+  display: inline;
 }
 
 .options_container{
