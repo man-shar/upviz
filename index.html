@@ -33,7 +33,7 @@
 					<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
 					<span class="checkbox_label">
 						Constituencies where the party won
-						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+						<a onClick="checkOnly(this,event)" class="toggle_checkbox" href="#">Only</a>
 					</span>
 				</label>
 			</div>
@@ -42,7 +42,7 @@
 					<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
 					<span class="checkbox_label">
 						Constituencies where the party was the runner up
-						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+						<a onClick="checkOnly(this,event)" class="toggle_checkbox" href="#">Only</a>
 					</span>
 				</label>
 			</div>
@@ -51,7 +51,7 @@
 					<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
 					<span class="checkbox_label">
 						Constituencies where the party was 3rd and Below
-						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+						<a onClick="checkOnly(this,event)" class="toggle_checkbox" href="#">Only</a>
 					</span>
 				</label>
 			</div>
@@ -75,7 +75,7 @@
 }
 
 
-function checkOnly(option){
+function checkOnly(option,event){
 	var checkbox=option.parentNode.previousElementSibling;
 	var id=checkbox.getAttribute("id");
 	if(checkbox.getAttribute("checked")=="unchecked"){
@@ -88,7 +88,8 @@ function checkOnly(option){
 			if (this.getAttribute("checked")=="checked")
 				this.click();
 		}
-	})
+	});
+	event.preventDefault();
 
 }
 
