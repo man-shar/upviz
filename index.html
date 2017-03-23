@@ -92,7 +92,7 @@ function checkOnly(option){
 
 }
 
-function showtooltip(){
+function showtool(){
 	mouse=d3.mouse(this);
 
 	var consti=".a"+d3.select(this).data()[0].properties["AC_NO"];
@@ -172,36 +172,36 @@ function showtooltip(){
 	
 	if(this.parentNode.getAttribute("class")=="turnout toviz")
 	{
-		g_turnout.select(".tooltip")
+		g_turnout.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]+10)+","+(mouse[1]-65)+")"})
 		.classed("hidden",false);
-		g_bjp.select(".tooltip")
+		g_bjp.select(".tool")
 		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-56)+")";})
 		.classed("hidden",false);
-		g_inc.select(".tooltip")
+		g_inc.select(".tool")
 		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-56)+")";})
 		.classed("hidden",false);
-		g_sp.select(".tooltip")
+		g_sp.select(".tool")
 		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-56)+")";})
 		.classed("hidden",false);
-		g_bsp.select(".tooltip")
+		g_bsp.select(".tool")
 		.attr("transform",function(){return "translate("+((mouse[0]+5)/2-110)+","+((mouse[1]-20)/2-56)+")";})
 		.classed("hidden",false);
 	}
 	else{
-		g_turnout.select(".tooltip")
+		g_turnout.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]*1.7)+","+(mouse[1]*2-100)+")"})
 		.classed("hidden",false);
-		g_bjp.select(".tooltip")
+		g_bjp.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-78)+")"})
 		.classed("hidden",false);
-		g_inc.select(".tooltip")
+		g_inc.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-78)+")"})
 		.classed("hidden",false);
-		g_sp.select(".tooltip")
+		g_sp.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-78)+")"})
 		.classed("hidden",false);
-		g_bsp.select(".tooltip")
+		g_bsp.select(".tool")
 		.attr("transform",function(){return "translate("+(mouse[0]-110)+","+(mouse[1]-78)+")"})
 		.classed("hidden",false);
 	}
@@ -306,10 +306,10 @@ function newmaps(year){
 			.attr("class",function(d){
 				return "a"+d.properties["AC_NO"];
 			})
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -372,10 +372,10 @@ function newmaps(year){
 				else return "a"+d.properties["AC_NO"]+"third";
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -393,10 +393,10 @@ function newmaps(year){
 					return "third"+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -414,10 +414,10 @@ function newmaps(year){
 				else return "third"+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -435,10 +435,10 @@ function newmaps(year){
 				else return "third"+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -457,8 +457,8 @@ function newmaps(year){
 		g_bsp=d3.select(".bsp.toviz");
 
 		d3.selectAll("g.toviz").each(function(){
-			var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
-			tooltip.append("g").attr("class","description")
+			var tool=d3.select(this).append("g").attr("class","tool hidden");
+			tool.append("g").attr("class","description")
 			.append("rect")
 			.attr("width","150")
 			.attr("height",65);
@@ -709,10 +709,10 @@ function oldmaps(year){
 				return "a"+d.properties["AC_NO"];
 			})
 			.attr("d",path_big)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -727,10 +727,10 @@ function oldmaps(year){
 				else return "third "+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -745,10 +745,10 @@ function oldmaps(year){
 				else return "third "+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -763,10 +763,10 @@ function oldmaps(year){
 				else return "third "+"a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -781,10 +781,10 @@ function oldmaps(year){
 				else return "third "+" a"+d.properties["AC_NO"];
 			})
 			.attr("d", path_small)
-			.on("mouseover",showtooltip)
+			.on("mouseover",showtool)
 			.on("mouseout",function(d){
 				consti=".a"+d.properties["AC_NO"];
-				d3.selectAll(".tooltip").each(function(){
+				d3.selectAll(".tool").each(function(){
 					d3.select(this).classed("hidden",true);
 					d3.selectAll(consti).each(function(){d3.select(this).style("stroke-width","0.2");});
 				});
@@ -792,8 +792,8 @@ function oldmaps(year){
 
 
 			d3.selectAll("g.toviz").each(function(){
-				var tooltip=d3.select(this).append("g").attr("class","tooltip hidden");
-				tooltip.append("g").attr("class","description")
+				var tool=d3.select(this).append("g").attr("class","tool hidden");
+				tool.append("g").attr("class","description")
 				.append("rect")
 				.attr("width",150)
 				.attr("height",65);
