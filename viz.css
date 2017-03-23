@@ -75,21 +75,21 @@ g{
 }
 
 .position_toggle_container{
-  position: relative;
-  bottom: 120px;
-  margin-left: 40px;
+  margin-left: 10px;
   display: inline-block;
 }
 #year_dropdown{
   display: inline-block;
   vertical-align: top;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 #year_dropdown > form > div{
-  display: inline;
+  display: block;
 }
 
 .options_container{
+    position: relative;
+  bottom: 100px;
   margin-left: 40px;
   margin-bottom: 20px;
 }

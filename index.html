@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <link rel="stylesheet" type="text/css" href="viz.css">
 <body onload="newmaps('17')">
+	<div class="toviz">
+	</div>
 	<div class="options_container noselect" >
 		<div id="year_dropdown" data-old-value="17" data-first-run="true" autocomplete="off">
 			<form>
@@ -25,41 +27,36 @@
 				</div>
 			</form>
 		</div>
-
-	</div>
-	<div class="toviz">
-	</div>
-	<div class="position_toggle_container noselect">
-		<div>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
-				<span class="checkbox_label">
-					Constituencies where the party won
-					<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
-				</span>
-			</label>
+		<div class="position_toggle_container noselect">
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="winner_checkbox" class="checkbox" onclick="toggle(this)" value="won" checked="checked">
+					<span class="checkbox_label">
+						Constituencies where the party won
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
+				</label>
+			</div>
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
+					<span class="checkbox_label">
+						Constituencies where the party was the runner up
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
+				</label>
+			</div>
+			<div>
+				<label class="noselect">
+					<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
+					<span class="checkbox_label">
+						Constituencies where the party was 3rd and Below
+						<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
+					</span>
+				</label>
+			</div>
 		</div>
-		<div>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="runnerup_checkbox" class="checkbox" onclick="toggle(this)" value="runnerup" checked="checked">
-				<span class="checkbox_label">
-					Constituencies where the party was the runner up
-					<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
-				</span>
-			</label>
 		</div>
-		<div>
-			<label class="noselect">
-				<input autocomplete="off" type="checkbox" id="below_checkbox" class="checkbox" onclick="toggle(this)" value="third" checked="checked">
-				<span class="checkbox_label">
-					Constituencies where the party was 3rd and Below
-					<a onClick="checkOnly(this)" class="toggle_checkbox" href="#">Only</a>
-				</span>
-			</label>
-		</div>
-	</div>
-
-
 </body>
 
 
@@ -658,19 +655,19 @@ function oldmaps(year){
 
 		legend_cols=["#888","#bbb","#ddd","#fff"];
 
-			var glist=[g_turnout,g_bjp,g_inc,g_sp,g_bsp];
-			var reflist=["Turnout","BJP","INC","SP","BSP"];
-			var party_midcolors=['#ffd296',"#fcc376",'#b6deef',"#6bb9db",'#f9869d',"#e23d5e",'#c2f796',"#9ad868"];
-			var tout_colors=['#edf8fb','#bfd3e6','#9ebcda','#8c96c6','#8c6bb1','#88419d','#6e016b'];
+		var glist=[g_turnout,g_bjp,g_inc,g_sp,g_bsp];
+		var reflist=["Turnout","BJP","INC","SP","BSP"];
+		var party_midcolors=['#ffd296',"#fcc376",'#b6deef',"#6bb9db",'#f9869d',"#e23d5e",'#c2f796',"#9ad868"];
+		var tout_colors=['#edf8fb','#bfd3e6','#9ebcda','#8c96c6','#8c6bb1','#88419d','#6e016b'];
 
-			g_turnout.append("text").text("VOTER TURNOUT").attr("transform",function(){return "translate("+(width/2-150)+",20)"}).attr("class","map_label").style("fill",party_colors["Turnout"]).attr("text-anchor","middle");
-			
-			for(var j=0;j<7;j++)
-			{
-				glist[0].append("rect").attr("width",10).attr("height",10).attr("x",(width/2-185)+10*j).attr("y",30).style("fill",tout_colors[j]).style("stroke-width","0.2px").style("stroke","black");
-			}
+		g_turnout.append("text").text("VOTER TURNOUT").attr("transform",function(){return "translate("+(width/2-150)+",20)"}).attr("class","map_label").style("fill",party_colors["Turnout"]).attr("text-anchor","middle");
 
-			glist[0].append("text").text("Low").attr("transform",function(){return "translate("+((width/2-185))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
+		for(var j=0;j<7;j++)
+		{
+			glist[0].append("rect").attr("width",10).attr("height",10).attr("x",(width/2-185)+10*j).attr("y",30).style("fill",tout_colors[j]).style("stroke-width","0.2px").style("stroke","black");
+		}
+
+		glist[0].append("text").text("Low").attr("transform",function(){return "translate("+((width/2-185))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
 			//glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-175))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
 			glist[0].append("text").text("High").attr("transform",function(){return "translate("+((width/2-115))+","+(50)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
 			//glist[0].append("text").text("Turnout").attr("transform",function(){return "translate("+((width/2-125))+","+(60)+")";}).attr("class","map_label_small").attr("text-anchor","middle");
